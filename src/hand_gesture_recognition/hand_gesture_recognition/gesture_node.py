@@ -13,7 +13,7 @@ import mediapipe as mp      # Import MediaPipe for hand tracking
 from geometry_msgs.msg import Point     # Import Point message type
 
 
-class HandGesture():
+class HandGesture(Node):
     """
     Docstring for HandGesture
     """
@@ -30,9 +30,9 @@ class HandGesture():
         self.declare_parameter('max_num_hands', 2)
 
         # get parameters
-        use_camera = self.get_parameter('use_camera').value
-        width = self.get_parameter('width').value
-        height = self.get_parameter('height').value
+        self.use_camera = self.get_parameter('use_camera').value
+        self.width = self.get_parameter('width').value
+        self.height = self.get_parameter('height').value
         camera_id = self.get_parameter('camera_id').value
         min_detection = self.get_parameter('min_detection_confidence').value
         min_tracking = self.get_parameter('min_tracking_confidence').value
@@ -40,12 +40,12 @@ class HandGesture():
 
 
         # intialize MediaPipe Hands
-        self.mp_hands = mp.solution.hands
+        self.mp_hands = mp.solutions.hands
         self.mp_drawing = mp.solutions.drawing_utils
         self.mp_drawing_styles = mp.solutions.drawing_styles
         # Create a MediaPipe Hands object
         self.hands = self.mp_hands.Hands(
-            static_image_node = False,
+            static_image_mode = False,
             max_num_hands = max_hands,
             min_detection_confidence = min_detection,
             min_tracking_confidence = min_tracking
@@ -227,7 +227,7 @@ class HandGesture():
 
         # process with MediaPipe
 
-        results = self.hand.process(rgb_frame)
+        results = self.hands.process(rgb_frame)
 
         #create annotated image
         annotated_image = frame.copy()
@@ -287,7 +287,7 @@ class HandGesture():
             self.get_logger().error(f'CvBridge Error: {e}')
 
         # display if use webcam
-        if self.use_webcam:
+        if self.use_camera:
             cv2.imshow('Hand Gesture Recognition', annotated_image)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 self.get_logger().info('User request shutdown')
@@ -315,7 +315,7 @@ def main (args = None):
     except Exception as e:
         print(f'Exception in gesture detector: {e}')
     finally: 
-        if 'detection' in locals():
+        if 'detector' in locals():
             detector.cleanup()
 
         #shutdown
