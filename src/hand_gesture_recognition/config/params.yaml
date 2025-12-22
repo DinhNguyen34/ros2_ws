@@ -1,0 +1,29 @@
+gesture_detector:
+  ros__parameters:
+    #setting Camera:
+    use_camera: true
+    Camera_id: 0
+
+    #mediapipe settings:
+    min_detection_confidence: 0.7
+    min_tracking_confidence: 0.5
+    max_num_hands: 2
+
+    #display setting:
+    show_window: true
+
+gesture_controller:
+  ros__parameters:
+    #speed settings
+    linear_speed: 0.5
+    angular_speed: 1.0
+
+    #topic settings
+    cmd_vel_topic: '/cmd_vel'
+
+    #timeout settings
+    enable_timeout: true
+    timeout_seconds: 1.0
+    #speed limits
+    min_speed_multiplier: 0.2
+    max_speed_multiplier: 2.0

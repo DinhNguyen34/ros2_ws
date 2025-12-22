@@ -63,7 +63,7 @@ class CameraPublisher(Node):
         self.publisher = self.create_publisher(Image, '/camera/image_raw', 10)   #create publisher to publish images to /camera/image_raw topic
 
         # timer 30FPS
-        self.timer = self.create_timer(1.0/30.0, self.timer_callback)
+        self.timer = self.create_timer(1.0/60.0, self.timer_callback)
         self.get_logger().info('Camera publisher staerted!')
 
     def timer_callback(self):

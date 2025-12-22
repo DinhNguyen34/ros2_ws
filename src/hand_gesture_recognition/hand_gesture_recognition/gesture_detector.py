@@ -13,7 +13,7 @@ import mediapipe as mp      # Import MediaPipe for hand tracking
 from geometry_msgs.msg import Point     # Import Point message type
 
 
-class HandGesture(Node):
+class HandGestureDetector(Node):
     """
     Docstring for HandGesture
     """
@@ -31,13 +31,15 @@ class HandGesture(Node):
 
         # get parameters
         self.use_camera = self.get_parameter('use_camera').value
-        self.width = self.get_parameter('width').value
-        self.height = self.get_parameter('height').value
+        width = self.get_parameter('width').value
+        height = self.get_parameter('height').value
         camera_id = self.get_parameter('camera_id').value
         min_detection = self.get_parameter('min_detection_confidence').value
         min_tracking = self.get_parameter('min_tracking_confidence').value
         max_hands = self.get_parameter('max_num_hands').value
-
+        self.last_gesture = None
+        self.last_hand = None
+        
 
         # intialize MediaPipe Hands
         self.mp_hands = mp.solutions.hands
@@ -155,7 +157,7 @@ class HandGesture(Node):
             index_up = landmarks[8].y < landmarks[6].y
             middle_up = landmarks[12].y < landmarks[10].y
             if index_up and middle_up:
-                gesture = "PEACE"
+                gesture = "dog Van Anh"
             else:
                 gesture = "TWO"
         elif hand_count == 3:
@@ -271,13 +273,15 @@ class HandGesture(Node):
                     (10, 30 + hand_idx *30),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.7,
-                    (0, 255, 0),
+                    (255, 255, 0),
                     2
                 )
-
-                self.get_logger().info(
-                    f'Detected: {handedness} - {gesture} - {hand_count} fingers'
-                )
+                if gesture != self.last_gesture or handedness != self.last_hand:
+                    self.get_logger().info(
+                        f'Detected: {handedness} - {gesture} - {hand_count} fingers'
+                    )
+                    self.last_hand = handedness
+                    self.last_gesture = gesture
         # publish annotated image
         try:
             annotated_msg = self.bridge.cv2_to_imgmsg(annotated_image, "bgr8")
@@ -305,9 +309,9 @@ class HandGesture(Node):
 def main (args = None):
     """Main entry point"""
 
-    rclpy.init(args = args)
+    rclpy.init(args = args) 
     try:
-        detector = HandGesture()
+        detector = HandGestureDetector()
         rclpy.spin(detector)
 
     except KeyboardInterrupt:
